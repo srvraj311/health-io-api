@@ -27,6 +27,12 @@ public class ControllerExceptions {
         }
     }
 
+    public static class DataAlreadyExistsException extends RuntimeException {
+        public DataAlreadyExistsException(String message) {
+            super(message);
+        }
+    }
+
 
 
     // TODO : Define other custom exception classes as needed

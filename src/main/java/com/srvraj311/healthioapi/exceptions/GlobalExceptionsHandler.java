@@ -52,13 +52,19 @@ public class GlobalExceptionsHandler {
         );
     }
 
-    @ExceptionHandler({Exception.class})
-    public ResponseEntity<Object> handleRuntimeException(Exception ex) {
+    @ExceptionHandler({ControllerExceptions.DataAlreadyExistsException.class})
+    public ResponseEntity<Object> handleDataAlreadyExistsException(Exception ex) {
         return AppUtil.getErrorObjectFromResponseEntity(
-            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage())
+                ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage())
         );
     }
 
+    @ExceptionHandler({Exception.class})
+    public ResponseEntity<Object> handleRuntimeException(Exception ex) {
+        return AppUtil.getErrorObjectFromResponseEntity(
+                ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage())
+        );
+    }
 
 
 

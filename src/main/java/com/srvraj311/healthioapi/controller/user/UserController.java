@@ -1,20 +1,19 @@
 package com.srvraj311.healthioapi.controller.user;
 
+import com.srvraj311.healthioapi.dto.LoginRequest;
+import com.srvraj311.healthioapi.dto.ResetPasswordRequest;
 import com.srvraj311.healthioapi.exceptions.ControllerExceptions;
-import com.srvraj311.healthioapi.models.SignupRequestWithOtp;
+import com.srvraj311.healthioapi.dto.SignupRequestWithOtp;
 import com.srvraj311.healthioapi.models.User;
 import com.srvraj311.healthioapi.service.UserService;
-import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,11 +29,41 @@ public class UserController {
     @Qualifier("authenticationManager")
     private AuthenticationManager authenticationManager;
 
-    @GetMapping("/test")
-    public HashMap<String, String> getUser() {
-        HashMap<String, String> map = new HashMap<>();
-        map.put("Server", "Working");
-        return map;
+    @PostMapping("/signup")
+    public ResponseEntity<Object> signUp(@RequestBody SignupRequestWithOtp user) {
+        return userService.signUp(user);
+    }
+
+    @PostMapping("update")
+    public ResponseEntity<Object> update(@RequestBody User user) {
+        return userService.update(user);
+    }
+
+    /**
+     *
+     * @param email for sending email
+     * @param command takes command Constants.CMD_OTP_FORGOT_PASSWORD, Constants.CMD_OTP_SIGNUP
+     * @return ResponseEntity<Object>
+     * @throws InterruptedException
+     */
+    @PostMapping("/send_otp")
+    public ResponseEntity<Object> sendOtp(@Param("email") String email, @Param("command") String command) throws InterruptedException {
+        return userService.sendNewOtp(email, command);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<Object> login(@RequestBody LoginRequest loginRequest) {
+        return userService.login(loginRequest);
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<Object> login(@RequestBody ResetPasswordRequest request) {
+        return userService.resetPassword(request);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Object> logout() {
+        return userService.logout();
     }
 
     @PostMapping("/authenticate")
@@ -50,23 +79,6 @@ public class UserController {
             throw new ControllerExceptions.BadRequestException("Invalid username or password");
         }
     }
-
-    @PostMapping("/signup")
-    public ResponseEntity<Object> signUp(@RequestBody SignupRequestWithOtp user) {
-        if (user == null) {
-            throw new ControllerExceptions.BadRequestException("User object is null");
-        }
-        return userService.signUp(user);
-    }
-
-    @PostMapping("update")
-    public ResponseEntity<Object> update(@RequestBody User user) {
-        if (user == null) {
-            throw new ControllerExceptions.BadRequestException("User object is null");
-        }
-        return userService.update(user);
-    }
-
     // Test endpoint to decrypt token
     @GetMapping("/users")
     public ResponseEntity<Object> getUsers() {
@@ -77,9 +89,4 @@ public class UserController {
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
     }
-
-    @PostMapping("/send_otp")
-    public ResponseEntity<Object> sendOtp(@Param("email") String email) throws InterruptedException {
-        return userService.sendnewOtp(email);
-    };
 }

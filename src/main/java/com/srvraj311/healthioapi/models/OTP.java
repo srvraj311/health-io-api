@@ -7,46 +7,22 @@
 package com.srvraj311.healthioapi.models;
 
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-
+@SuperBuilder
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Document("otp")
-public class OTP {
+public class OTP extends BaseModel {
     @Id
     private String email;
     private String otp;
     private String expires_at;
-
-    public OTP() {
-    }
-
-    public OTP(String email, String otp, String expiresAt) {
-        this.email = email;
-        this.otp = otp;
-        expires_at = expiresAt;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getOtp() {
-        return otp;
-    }
-
-    public void setOtp(String otp) {
-        this.otp = otp;
-    }
-
-    public String getExpires_at() {
-        return expires_at;
-    }
-
-    public void setExpires_at(String expires_at) {
-        this.expires_at = expires_at;
-    }
 }

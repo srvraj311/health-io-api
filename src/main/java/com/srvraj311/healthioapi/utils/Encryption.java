@@ -4,7 +4,7 @@
  *
  */
 
-package com.srvraj311.healthioapi.models;
+package com.srvraj311.healthioapi.utils;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;

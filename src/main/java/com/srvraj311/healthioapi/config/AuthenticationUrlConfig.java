@@ -19,6 +19,7 @@ public class AuthenticationUrlConfig {
     public static final String CLIENT_URL = "/client";
     public static final String SUB_URLS = "/*";
     public static final String AUTHENTICATE_URL = "/authenticate";
+    public static final String HOSTPITAL_URL = "/hospital";
 
 
     @Bean
@@ -41,7 +42,8 @@ public class AuthenticationUrlConfig {
     @Bean
     public String[] getAuthenticatedEndpoints() {
         return new String[]{
-                API_V1_URL + CLIENT_URL + SUB_URLS
+                API_V1_URL + CLIENT_URL + SUB_URLS,
+                API_V1_URL + HOSTPITAL_URL + SUB_URLS
         };
     }
 }
