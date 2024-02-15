@@ -1,8 +1,10 @@
 package com.srvraj311.healthioapi.utils;
 
+import com.srvraj311.healthioapi.dto.ResponseMap;
 import com.srvraj311.healthioapi.models.BaseModel;
 import org.springframework.http.ResponseEntity;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashMap;
@@ -19,14 +21,14 @@ public class AppUtil {
         return new HashMap<String, String>();
     }
 
-    public static HashMap<String, String> getEmptyMap(String message) {
-        HashMap<String, String> response = new HashMap<>();
+    public static ResponseMap getEmptyMap(String message) {
+        ResponseMap response = ResponseMap.builder().build();
         response.put(Constants.MESSAGE, message);
         return response;
     }
 
     public static BaseModel markAsDeleted(BaseModel model) {
-        model.setDeletedAt(LocalDateTime.now());
+        model.setDeletedAt(Instant.now());
         return model;
     };
 }

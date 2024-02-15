@@ -33,7 +33,6 @@ public class AuthenticationUrlConfig {
                 AUTH_V1_URL+ CHANGE_PASSWORD_URL,
                 AUTH_V1_URL+ CHANGE_EMAIL_URL,
                 AUTH_V1_URL+ CHANGE_USERNAME_URL,
-                AUTH_V1_URL+ TEST_URL,
                 AUTH_V1_URL+ AUTHENTICATE_URL,
                 AUTH_V1_URL+ SEND_OTP
         };
@@ -42,6 +41,7 @@ public class AuthenticationUrlConfig {
     @Bean
     public String[] getAuthenticatedEndpoints() {
         return new String[]{
+                AUTH_V1_URL+ TEST_URL,
                 API_V1_URL + CLIENT_URL + SUB_URLS,
                 API_V1_URL + HOSTPITAL_URL + SUB_URLS
         };

@@ -17,7 +17,7 @@ public interface HospitalRepository extends MongoRepository<Hospital, String> {
     @Query("{'name':  ?0}")
     Optional<Hospital> findByName(String name);
 
-    @Query("{'licence_id': ?0}") // can be used for more than one field
+    @Query("{'_id': ?0}") // can be used for more than one field
     Optional<Hospital> findByLicenceId(String id);
 
     @Query("{'city_name': ?0}")

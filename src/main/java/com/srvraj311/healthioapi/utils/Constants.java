@@ -3,6 +3,8 @@ package com.srvraj311.healthioapi.utils;
 public class Constants {
     public static final String STATUS = "status";
     public static final String MESSAGE = "message";
+    public static final String OK = "OK";
+    public static final String FAILED = "FAILED";
 
     public static final String CMD_OTP_FORGOT_PASSWORD = "forgot-password";
     public static final String CMD_OTP_SIGNUP = "signup";

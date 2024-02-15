@@ -1,12 +1,11 @@
 package com.srvraj311.healthioapi.service;
 
 import com.google.gson.Gson;
-import com.srvraj311.healthioapi.dto.LoginRequest;
-import com.srvraj311.healthioapi.dto.ResetPasswordRequest;
+import com.srvraj311.healthioapi.dto.*;
 import com.srvraj311.healthioapi.exceptions.ControllerExceptions;
 import com.srvraj311.healthioapi.exceptions.UserValidationService;
+import com.srvraj311.healthioapi.models.Distance.Res;
 import com.srvraj311.healthioapi.models.OTP;
-import com.srvraj311.healthioapi.dto.SignupRequestWithOtp;
 import com.srvraj311.healthioapi.models.User;
 import com.srvraj311.healthioapi.repository.OTPValidationRepository;
 import com.srvraj311.healthioapi.repository.UserRepository;
@@ -15,6 +14,7 @@ import com.srvraj311.healthioapi.utils.AppUtil;
 import com.srvraj311.healthioapi.utils.Constants;
 import com.srvraj311.healthioapi.utils.EmailConfig;
 import com.srvraj311.healthioapi.utils.JwtTokenUtil;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.Optional;
 
 @Service
+@AllArgsConstructor
 public class UserService {
     final UserValidationService userValidationService;
     final UserRepository userRepository;
@@ -42,56 +43,40 @@ public class UserService {
     private final DeleteOTP deleteOTP;
     private final AuthenticationManager authenticationManager;
 
-    public UserService(UserValidationService userValidationService, UserRepository userRepository, JwtTokenUtil jwtTokenUtil, PasswordEncoder passwordEncoder, JavaMailSender mailSender,
-                       OTPValidationRepository oTPValidationRepository, DeleteOTP deleteOTP, AuthenticationManager authenticationManager) {
-        this.userValidationService = userValidationService;
-        this.userRepository = userRepository;
-        this.jwtTokenUtil = jwtTokenUtil;
-        this.passwordEncoder = passwordEncoder;
-        this.mailSender = mailSender;
-        this.oTPValidationRepository = oTPValidationRepository;
-        this.deleteOTP = deleteOTP;
-        this.authenticationManager = authenticationManager;
-    }
-
-    public ResponseEntity<Object> signUp(SignupRequestWithOtp user) {
-        try {
-            userValidationService.validateNotNull(user, "User");
-            userValidationService.validateNotNull(user.getOtp(), "OTP");
-            userValidationService.validateNotNull(user.getEmail(), "Email");
-            user.setEmail(user.getEmail().toLowerCase());
-            // verify OTP to signup
-            boolean isOtpVerified = verifyOtpFromDB(user.getEmail(), user.getOtp());
-            if (!isOtpVerified) {
-                throw new ControllerExceptions.OtpInvalidException("Otp did not match");
-            }
-            userValidationService.validateNotNull(user.getPassword(), "Password");
-            userValidationService.validateNotNull(user.getRole(), "Role");
-            userValidationService.validateEmailFormat(user.getEmail());
-            userValidationService.validatePasswordStrength(user.getPassword());
-            userValidationService.validateUserNotExistsByEmail(user.getEmail());
-            // Encrypt password before saving
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
-
-            // Create a JWT token
-            String token = jwtTokenUtil.generateToken(user);
-            HashMap<String, String> response = new HashMap<>();
-            response.put("token", token);
-            response.put("user", new Gson().toJson(user));
-            response.put("message", "User created successfully");
-            userRepository.insert(user);
-            return ResponseEntity.ok().body(response);
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(e.getMessage());
+    public ResponseEntity<ApiResponse> signUp(SignupRequestWithOtp user) {
+        userValidationService.validateNotNull(user, "User");
+        userValidationService.validateNotNull(user.getOtp(), "OTP");
+        userValidationService.validateNotNull(user.getEmail(), "Email");
+        user.setEmail(user.getEmail().toLowerCase());
+        // verify OTP to signup
+        boolean isOtpVerified = verifyOtpFromDB(user.getEmail(), user.getOtp());
+        if (!isOtpVerified) {
+            throw new ControllerExceptions.OtpInvalidException("Otp did not match");
         }
+        userValidationService.validateNotNull(user.getPassword(), "Password");
+        userValidationService.validateNotNull(user.getRole(), "Role");
+        userValidationService.validateEmailFormat(user.getEmail());
+        userValidationService.validatePasswordStrength(user.getPassword());
+        userValidationService.validateUserNotExistsByEmail(user.getEmail());
+        // Encrypt password before saving
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+        // Create a JWT token
+        String token = jwtTokenUtil.generateToken(user);
+        userRepository.insert(user);
+        ResponseMap response = ResponseMap.builder().build();
+        response.put("token", token);
+        response.put("user", user);
+        response.put("message", "User created successfully");
+        return ResponseEntity.ok().body(ApiResponse.<ResponseMap>builder().status(Constants.OK).body(response).build());
     }
 
     private boolean verifyOtpFromDB(String email, String otp) {
         Optional<OTP> otpOptional = oTPValidationRepository.findByEmail(email);
         if (otpOptional.isPresent()) {
             OTP otpDB = otpOptional.get();
-            return  otpDB.getEmail().equals(email) &&
-                Long.parseLong(otpDB.getExpires_at()) > new Date(System.currentTimeMillis()).getTime();
+            return otpDB.getEmail().equals(email) &&
+                    Long.parseLong(otpDB.getExpires_at()) > new Date(System.currentTimeMillis()).getTime();
         }
         return false;
     }
@@ -100,7 +85,7 @@ public class UserService {
         return jwtTokenUtil.generateToken(user);
     }
 
-    public ResponseEntity<Object> update(User user) {
+    public ResponseEntity<ApiResponse> update(User user) {
         user.setEmail(user.getEmail().toLowerCase());
         userValidationService.validateNotNull(user, "User");
         userValidationService.validateNotNull(user.getEmail(), "Email");
@@ -123,26 +108,27 @@ public class UserService {
             u1.setFirst_name(user.getFirst_name());
             u1.setLast_name(user.getLast_name());
             u1.setMobile_num(user.getMobile_num());
-            return ResponseEntity.ok().body(userRepository.save(user));
+            userRepository.save(user);
+            ResponseEntity.ok().body(ApiResponse.builder().body(user).status(Constants.OK).build());
         }
 
         throw new UsernameNotFoundException("User details not found on server");
     }
 
-    public ResponseEntity<Object> sendNewOtp(String email , String command) throws InterruptedException {
+    public ResponseEntity<ApiResponse> sendNewOtp(String email, String command) throws InterruptedException {
         email = email.toLowerCase();
-        userValidationService.validateNotNull( email, "Email");
+        userValidationService.validateNotNull(email, "Email");
         userValidationService.validateNotNull(command, "Command");
         userValidationService.validateUserNotExistsByEmail(email);
         userValidationService.validateEmailFormat(email);
         return sendMail(email, command);
     }
 
-    public ResponseEntity<Object> sendMail(String email , String command) throws InterruptedException {
+    public ResponseEntity<ApiResponse> sendMail(String email, String command) throws InterruptedException {
         int otp = (int) (Math.random() * 1000000);
-        OTP otpDto = new OTP(email , String.valueOf(otp), String.valueOf(new Date(System.currentTimeMillis()).getTime() + 1000 * 60 * 10));
+        OTP otpDto = new OTP(email, String.valueOf(otp), String.valueOf(new Date(System.currentTimeMillis()).getTime() + 1000 * 60 * 10));
         oTPValidationRepository.save(otpDto);
-        HashMap<String, String> response = new HashMap<>();
+        ResponseMap response = ResponseMap.builder().build();
 
         Thread emailThread = new Thread(() -> {
             EmailConfig emailConfig = new EmailConfig();
@@ -163,10 +149,10 @@ public class UserService {
         emailThread.join(5000);
 
         response.put("message", "OTP Sent successfully");
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.ok().body(ApiResponse.<ResponseMap>builder().status(Constants.OK).body(response).build());
     }
 
-    public ResponseEntity<Object> login(LoginRequest loginRequest) {
+    public ResponseEntity<ApiResponse> login(LoginRequest loginRequest) {
         userValidationService.validateNotNull(loginRequest, "Login Request");
         userValidationService.validateNotNull(loginRequest.getEmail(), "Email");
         userValidationService.validateNotNull(loginRequest.getPassword(), "Password");
@@ -179,15 +165,16 @@ public class UserService {
             user.setPassword(loginRequest.getPassword());
             user.setRole(loginRequest.getRole());
             String token = generateToken(user);
-            HashMap<String, String> response = AppUtil.getEmptyMap("Login successful");
+            ResponseMap response = ResponseMap.builder().build();
+            response.put("message", "Login Successful");
             response.put("token", token);
-            return ResponseEntity.ok().body(response);
+            return ResponseEntity.ok().body(ApiResponse.<ResponseMap>builder().status(Constants.OK).body(response).build());
         } else {
             throw new ControllerExceptions.UnauthorizedException("Invalid username or password");
         }
     }
 
-    public ResponseEntity<Object> resetPassword(ResetPasswordRequest request) {
+    public ResponseEntity<ApiResponse> resetPassword(ResetPasswordRequest request) {
         userValidationService.validateNotNull(request, "Request");
         userValidationService.validateNotNull(request.getEmail(), "Email");
         userValidationService.validateNotNull(request.getPassword(), "Password");
@@ -197,19 +184,19 @@ public class UserService {
         userValidationService.validateUserNotExistsByEmail(request.getEmail());
 
         Optional<User> dbUser = userRepository.findByEmail(request.getEmail());
-        if(dbUser.isPresent() && verifyOtpFromDB(request.getEmail(), request.getOtp())) {
+        if (dbUser.isPresent() && verifyOtpFromDB(request.getEmail(), request.getOtp())) {
             dbUser.get().setPassword(passwordEncoder.encode(request.getPassword()));
             userRepository.save(dbUser.get());
-            return ResponseEntity.ok(AppUtil.getEmptyMap("Login Successful"));
+            return ResponseEntity.ok(ApiResponse.builder().status(Constants.OK).body(AppUtil.getEmptyMap("Login Successful")).build());
         }
 
         throw new ControllerExceptions.OtpInvalidException("OTP invalid or expired");
     }
 
-    public ResponseEntity<Object> logout() {
+    public ResponseEntity<ApiResponse> logout() {
         if (SecurityContextHolder.getContext().getAuthentication().isAuthenticated()) {
             SecurityContextHolder.getContext().setAuthentication(null);
-            return ResponseEntity.ok(AppUtil.getEmptyMap("Logout successful"));
+            return ResponseEntity.ok().body(ApiResponse.builder().status(Constants.OK).body(AppUtil.getEmptyMap("Logout Successful")).build());
         }
 
         throw new ControllerExceptions.BadRequestException("Not logged in");

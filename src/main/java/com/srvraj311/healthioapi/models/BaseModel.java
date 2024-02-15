@@ -1,4 +1,7 @@
 package com.srvraj311.healthioapi.models;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,6 +12,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 @SuperBuilder
@@ -17,15 +21,18 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Document
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public abstract class BaseModel {
     @Field(name = "created_at")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     @CreatedDate
-    LocalDateTime createdAt;
+    public Instant createdAt;
 
     @Field(name = "updated_at")
-    @LastModifiedDate
-    LocalDateTime updatedAt;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+    public Instant updatedAt;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     @Field(name = "deleted_at")
-    LocalDateTime deletedAt;
+    public Instant deletedAt;
 }
