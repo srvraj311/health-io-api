@@ -1,25 +1,23 @@
 package com.srvraj311.healthioapi.service;
 
-import com.google.gson.Gson;
+
+import com.mongodb.client.MongoCursor;
 import com.srvraj311.healthioapi.dto.ApiResponse;
 import com.srvraj311.healthioapi.dto.ResponseMap;
 import com.srvraj311.healthioapi.exceptions.ControllerExceptions;
 import com.srvraj311.healthioapi.exceptions.HospitalValidationService;
-import com.srvraj311.healthioapi.models.Distance.Res;
 import com.srvraj311.healthioapi.models.Hospital.*;
 import com.srvraj311.healthioapi.repository.Hospital.*;
 import com.srvraj311.healthioapi.utils.AppUtil;
 import com.srvraj311.healthioapi.utils.Constants;
 import lombok.AllArgsConstructor;
-import netscape.javascript.JSObject;
-import org.bson.json.JsonObject;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,6 +33,7 @@ public class HospitalService {
     private final HospitalValidationService hospitalValidationService;
     private final HospitalInfoRepository hospitalInfoRepository;
     private final BloodBankRepository bloodBankRepository;
+    private final MongoTemplate mongoTemplate;
 
     public ResponseEntity<ApiResponse> addHospital(Hospital hospitalReq) {
         hospitalValidationService.validateNotNull(hospitalReq, "Hospital");
@@ -122,6 +121,7 @@ public class HospitalService {
 
         throw new ControllerExceptions.NotFoundException("The hospital ID you provided is not present");
     }
+
     private ResponseEntity<ApiResponse> updateHospitalAvailability(HashMap<String, String> requestObj) {
         HospitalAvailability availability = new ModelMapper().map(requestObj, HospitalAvailability.class);
         hospitalValidationService.validateNotNull(availability, "Hospital Availability");
@@ -140,6 +140,7 @@ public class HospitalService {
 
         throw new ControllerExceptions.NotFoundException("The hospital ID you provided is not present");
     }
+
     private ResponseEntity<ApiResponse> updateHospitalBloodBank(HashMap<String, String> requestObj) {
         BloodBank bloodBank = new ModelMapper().map(requestObj, BloodBank.class);
         hospitalValidationService.validateNotNull(bloodBank, "Hospital Blood Bank");
@@ -166,28 +167,28 @@ public class HospitalService {
         hospitalValidationService.validateHospitalExistsById(hospitalId);
 
         Optional<Hospital> hospital = hospitalRepository.findByLicenceId(hospitalId);
-        if(hospital.isPresent()){
+        if (hospital.isPresent()) {
             hospital.get().setDeletedAt(Instant.now());
             hospitalRepository.save(hospital.get());
         }
 
-        Optional<HospitalAmenities> amenities  = hospitalAmenitiesRepository.findOneByHospitalId(hospitalId);
-        if(amenities.isPresent()){
+        Optional<HospitalAmenities> amenities = hospitalAmenitiesRepository.findOneByHospitalId(hospitalId);
+        if (amenities.isPresent()) {
             amenities.get().setDeletedAt(Instant.now());
             hospitalAmenitiesRepository.save(amenities.get());
         }
         Optional<HospitalAvailability> availability = hospitalAvailabilityRepository.findOneByHospitalId(hospitalId);
-        if(availability.isPresent()){
+        if (availability.isPresent()) {
             availability.get().setDeletedAt(Instant.now());
             hospitalAvailabilityRepository.save(availability.get());
         }
         Optional<HospitalInfo> hospitalInfo = hospitalInfoRepository.findOneByHospitalId(hospitalId);
-        if(hospitalInfo.isPresent()){
+        if (hospitalInfo.isPresent()) {
             hospitalInfo.get().setDeletedAt(Instant.now());
             hospitalInfoRepository.save(hospitalInfo.get());
         }
         Optional<BloodBank> bloodBank = bloodBankRepository.findOneByHospitalId(hospitalId);
-        if(bloodBank.isPresent()){
+        if (bloodBank.isPresent()) {
             bloodBank.get().setDeletedAt(Instant.now());
             bloodBankRepository.save(bloodBank.get());
         }
@@ -219,7 +220,7 @@ public class HospitalService {
         Optional<Hospital> hospital = hospitalRepository.findByLicenceId(id);
         hospital.ifPresent(value -> response.put("hospital", value));
 
-        Optional<HospitalAmenities> amenities  = hospitalAmenitiesRepository.findOneByHospitalId(id);
+        Optional<HospitalAmenities> amenities = hospitalAmenitiesRepository.findOneByHospitalId(id);
         amenities.ifPresent(value -> response.put("amenities", value));
 
         Optional<HospitalAvailability> availability = hospitalAvailabilityRepository.findOneByHospitalId(id);
@@ -235,19 +236,69 @@ public class HospitalService {
     }
 
     public ResponseEntity<ApiResponse> getAllHospital() {
+        /*
+            TODO : Pagination
+            Page<Hospital> hospitalList = hospitalRepository.findAll(PageRequest.of(0, 10));
+            List<Hospital> hospitals = hospitalList.get().collect(Collectors.toList());
+        */
         List<Hospital> hospitalList = hospitalRepository.findAll();
         List<ResponseMap> detailsList = new ArrayList<>();
-        for( Hospital hospital : hospitalList ) {
+        for (Hospital hospital : hospitalList) {
             detailsList.add(this.getHospitalDetailsById(hospital.getId()));
         }
 
         ResponseMap map = ResponseMap.builder().build();
-        map.put("hospitals" , detailsList);
+        map.put("hospitals", detailsList);
 
         return ResponseEntity.ok().body(
                 ApiResponse.builder()
                         .status(Constants.OK)
                         .body(map)
+                        .build()
+        );
+    }
+
+    public ResponseEntity<ApiResponse> getHospitalByCity(String cityName) {
+        hospitalValidationService.validateNotNull(cityName, "City Name");
+        hospitalValidationService.validateFieldNotEmpty(cityName, "City Name");
+        Optional<List<Hospital>> hospitalList = hospitalRepository.findAllByCity(cityName.toLowerCase());
+        if (hospitalList.isPresent()) {
+            List<ResponseMap> detailsList = new ArrayList<>();
+            for (Hospital hospital : hospitalList.get()) {
+                detailsList.add(this.getHospitalDetailsById(hospital.getId()));
+            }
+
+            ResponseMap map = ResponseMap.builder().build();
+            map.put("city", cityName);
+            map.put("hospitals", detailsList);
+
+            return ResponseEntity.ok().body(
+                    ApiResponse.builder()
+                            .status(Constants.OK)
+                            .body(map)
+                            .build()
+            );
+        }
+
+        throw new ControllerExceptions.NotFoundException("Hospitals not found for this city");
+    }
+
+    public ResponseEntity<ApiResponse> getAllHosiptalCity() {
+        Query query = new Query();
+        query.fields().include("city");
+        MongoCursor<String> cities = mongoTemplate.getCollection("hospital").distinct("city", String.class).iterator();
+        List<String> cityList = new ArrayList<>();
+        while (cities.hasNext()) {
+            cityList.add(cities.next());
+        }
+
+        ResponseMap responseMap = ResponseMap.builder().build();
+        responseMap.put("cities", cityList);
+
+        return ResponseEntity.ok().body(
+                ApiResponse.builder()
+                        .status(Constants.OK)
+                        .body(responseMap)
                         .build()
         );
     }

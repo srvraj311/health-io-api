@@ -1,10 +1,8 @@
 package com.srvraj311.healthioapi.service;
 
-import com.google.gson.Gson;
 import com.srvraj311.healthioapi.dto.*;
 import com.srvraj311.healthioapi.exceptions.ControllerExceptions;
 import com.srvraj311.healthioapi.exceptions.UserValidationService;
-import com.srvraj311.healthioapi.models.Distance.Res;
 import com.srvraj311.healthioapi.models.OTP;
 import com.srvraj311.healthioapi.models.User;
 import com.srvraj311.healthioapi.repository.OTPValidationRepository;
@@ -15,7 +13,6 @@ import com.srvraj311.healthioapi.utils.Constants;
 import com.srvraj311.healthioapi.utils.EmailConfig;
 import com.srvraj311.healthioapi.utils.JwtTokenUtil;
 import lombok.AllArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -28,7 +25,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Optional;
 
 @Service

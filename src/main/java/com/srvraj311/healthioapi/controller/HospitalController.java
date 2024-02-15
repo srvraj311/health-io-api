@@ -4,7 +4,7 @@ import com.srvraj311.healthioapi.dto.ApiResponse;
 import com.srvraj311.healthioapi.models.Hospital.Hospital;
 import com.srvraj311.healthioapi.service.HospitalService;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.coyote.Response;
 import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -15,19 +15,20 @@ import java.util.HashMap;
 @RestController
 @RequestMapping("/api/v1/hospital")
 @AllArgsConstructor
+@ControllerAdvice
 public class HospitalController {
 
     private final HospitalService hospitalService;
 
     @PostMapping("/add")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN , ROLE_DATA_FEEDER')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') || hasAuthority('ROLE_DATA_FEEDER')")
     public ResponseEntity<ApiResponse> addHospital(@RequestBody Hospital hospital) {
         return hospitalService.addHospital(hospital);
     }
 
     @PostMapping("/update")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN, ROLE_DATA_FEEDER')")
-    public ResponseEntity<ApiResponse> updateHospitalDetails(@RequestBody HashMap<String, String> requestObj, @Param("command") String command){
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') || hasAuthority('ROLE_DATA_FEEDER')")
+    public ResponseEntity<ApiResponse> updateHospitalDetails(@RequestBody HashMap<String, String> requestObj, @Param("command") String command) {
         return hospitalService.updateHospitalData(requestObj, command);
     }
 
@@ -39,7 +40,7 @@ public class HospitalController {
 
     @GetMapping("/")
     @PreAuthorize("hasAuthority('ROLE_DOCTOR')")
-    public ResponseEntity<ApiResponse> getHospital(@Param("hospital_id") String hospital_id) {
+    public ResponseEntity<ApiResponse> getHospital(@RequestParam("hospital_id") String hospital_id) {
         return hospitalService.getHospital(hospital_id);
     }
 
@@ -47,5 +48,17 @@ public class HospitalController {
     @PreAuthorize("hasAuthority('ROLE_DOCTOR')")
     public ResponseEntity<ApiResponse> getAllhospital() {
         return hospitalService.getAllHospital();
+    }
+
+    @PostMapping("/city")
+    @PreAuthorize("hasAuthority('ROLE_DOCTOR') || hasAuthority('ROLE_USER')")
+    public ResponseEntity<ApiResponse> getHospitalByCity(@RequestParam("city_name") String cityName) {
+        return hospitalService.getHospitalByCity(cityName);
+    }
+
+    @GetMapping("/cities")
+    @PreAuthorize("hasAuthority('ROLE_DOCTOR') || hasAuthority('ROLE_USER')")
+    public ResponseEntity<ApiResponse> getAllCity() {
+        return hospitalService.getAllHosiptalCity();
     }
 }

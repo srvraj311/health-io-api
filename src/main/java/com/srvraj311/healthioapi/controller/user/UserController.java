@@ -1,17 +1,12 @@
 package com.srvraj311.healthioapi.controller.user;
 
-import com.google.gson.Gson;
 import com.srvraj311.healthioapi.dto.*;
 import com.srvraj311.healthioapi.exceptions.ControllerExceptions;
 import com.srvraj311.healthioapi.models.User;
 import com.srvraj311.healthioapi.service.UserService;
 import com.srvraj311.healthioapi.utils.Constants;
-import jakarta.annotation.security.RolesAllowed;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.repository.query.Param;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -42,7 +37,7 @@ public class UserController {
     }
 
     /**
-     * @param email for sending email
+     * @param email   for sending email
      * @param command takes command Constants.CMD_OTP_FORGOT_PASSWORD, Constants.CMD_OTP_SIGNUP
      * @return ResponseEntity<Object>
      * @throws InterruptedException
@@ -80,18 +75,19 @@ public class UserController {
             throw new ControllerExceptions.BadRequestException("Invalid username or password");
         }
     }
+
     // Test endpoint to decrypt token
     @GetMapping("/users")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<ApiResponse> getUsers() {
         if (SecurityContextHolder.getContext().getAuthentication().isAuthenticated()) {
             ResponseMap responseMap = ResponseMap.builder().build();
-            responseMap.put("user" , SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+            responseMap.put("user", SecurityContextHolder.getContext().getAuthentication().getPrincipal());
             return ResponseEntity.ok().body(
                     ApiResponse.builder()
                             .status(Constants.OK)
                             .body(responseMap)
-                    .build()
+                            .build()
             );
         }
         throw new ControllerExceptions.UnauthorizedException("User not authorized");

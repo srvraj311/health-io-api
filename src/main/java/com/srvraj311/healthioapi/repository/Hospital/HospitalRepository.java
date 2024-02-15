@@ -20,9 +20,7 @@ public interface HospitalRepository extends MongoRepository<Hospital, String> {
     @Query("{'_id': ?0}") // can be used for more than one field
     Optional<Hospital> findByLicenceId(String id);
 
-    @Query("{'city_name': ?0}")
+    @Query("{ city: { $regex: ?0, $options: 'i' } }")
     Optional<List<Hospital>> findAllByCity(String city);
 
-    @Query("{'distinct' :  'city_name'}")
-    Optional<List<String>> getDistricts();
 }

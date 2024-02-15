@@ -14,7 +14,7 @@ import java.util.Optional;
 
 public interface UserRepository extends MongoRepository<User, String> {
 
-    @Query("{'email': ?0}") // can be used for more than one field
+    @Query("{ email: { $regex: ?0, $options: 'i' } }") // can be used for more than one field
     Optional<User> findByEmail(String email);
 
 }
