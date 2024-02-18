@@ -197,4 +197,17 @@ public class UserService {
 
         throw new ControllerExceptions.BadRequestException("Not logged in");
     }
+
+    public ResponseEntity<ApiResponse<Object>> validateUser(String email) {
+        userValidationService.validateNotNull(email, "Email");
+        userValidationService.validateEmailFormat(email);
+        ResponseMap response = ResponseMap.builder().build();
+        Optional<User> user = userRepository.findByEmail(email);
+        if (user.isPresent()) {
+            response.put("message", "User exists");
+        } else {
+            throw new UsernameNotFoundException("User not found");
+        }
+        return ResponseEntity.ok().body(ApiResponse.builder().status(Constants.OK).body(response).build());
+    }
 }

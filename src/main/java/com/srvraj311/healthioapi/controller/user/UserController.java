@@ -26,6 +26,11 @@ public class UserController {
 
     private AuthenticationManager authenticationManager;
 
+    @PostMapping("/validate")
+    public ResponseEntity<ApiResponse<Object>> validateUser(@RequestBody HashMap<String, String> map) {
+        return userService.validateUser(map.get("email"));
+    }
+
     @PostMapping("/signup")
     public ResponseEntity<ApiResponse> signUp(@RequestBody SignupRequestWithOtp user) {
         return userService.signUp(user);

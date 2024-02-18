@@ -18,6 +18,7 @@ public class AuthenticationUrlConfig {
     public static final String TEST_URL = "/users";
     public static final String CLIENT_URL = "/client";
     public static final String SUB_URLS = "/*";
+    public static final String VALIDATE_USER = "/validate";
     public static final String AUTHENTICATE_URL = "/authenticate";
     public static final String HOSTPITAL_URL = "/hospital";
 
@@ -34,7 +35,8 @@ public class AuthenticationUrlConfig {
                 AUTH_V1_URL+ CHANGE_EMAIL_URL,
                 AUTH_V1_URL+ CHANGE_USERNAME_URL,
                 AUTH_V1_URL+ AUTHENTICATE_URL,
-                AUTH_V1_URL+ SEND_OTP
+                AUTH_V1_URL+ SEND_OTP,
+                AUTH_V1_URL+ VALIDATE_USER,
         };
     }
 
