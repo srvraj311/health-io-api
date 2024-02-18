@@ -201,6 +201,7 @@ public class UserService {
     public ResponseEntity<ApiResponse<Object>> validateUser(String email) {
         userValidationService.validateNotNull(email, "Email");
         userValidationService.validateEmailFormat(email);
+        email = email.toLowerCase();
         ResponseMap response = ResponseMap.builder().build();
         Optional<User> user = userRepository.findByEmail(email);
         if (user.isPresent()) {
