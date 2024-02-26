@@ -28,7 +28,7 @@ public class AppUtil {
     }
 
     public static BaseModel markAsDeleted(BaseModel model) {
-        model.setDeletedAt(Instant.now());
+        model.setDeletedAt(Date.from(Instant.now()));
         return model;
     };
 }

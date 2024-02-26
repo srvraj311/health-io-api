@@ -18,10 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @AllArgsConstructor
@@ -168,28 +165,28 @@ public class HospitalService {
 
         Optional<Hospital> hospital = hospitalRepository.findByLicenceId(hospitalId);
         if (hospital.isPresent()) {
-            hospital.get().setDeletedAt(Instant.now());
+            hospital.get().setDeletedAt(Date.from(Instant.now()));
             hospitalRepository.save(hospital.get());
         }
 
         Optional<HospitalAmenities> amenities = hospitalAmenitiesRepository.findOneByHospitalId(hospitalId);
         if (amenities.isPresent()) {
-            amenities.get().setDeletedAt(Instant.now());
+            amenities.get().setDeletedAt(Date.from(Instant.now()));
             hospitalAmenitiesRepository.save(amenities.get());
         }
         Optional<HospitalAvailability> availability = hospitalAvailabilityRepository.findOneByHospitalId(hospitalId);
         if (availability.isPresent()) {
-            availability.get().setDeletedAt(Instant.now());
+            availability.get().setDeletedAt(Date.from(Instant.now()));
             hospitalAvailabilityRepository.save(availability.get());
         }
         Optional<HospitalInfo> hospitalInfo = hospitalInfoRepository.findOneByHospitalId(hospitalId);
         if (hospitalInfo.isPresent()) {
-            hospitalInfo.get().setDeletedAt(Instant.now());
+            hospitalInfo.get().setDeletedAt(Date.from(Instant.now()));
             hospitalInfoRepository.save(hospitalInfo.get());
         }
         Optional<BloodBank> bloodBank = bloodBankRepository.findOneByHospitalId(hospitalId);
         if (bloodBank.isPresent()) {
-            bloodBank.get().setDeletedAt(Instant.now());
+            bloodBank.get().setDeletedAt(Date.from(Instant.now()));
             bloodBankRepository.save(bloodBank.get());
         }
 

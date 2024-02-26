@@ -32,11 +32,11 @@ public class UserController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<ApiResponse> signUp(@RequestBody SignupRequestWithOtp user) {
+    public ResponseEntity<ApiResponse> signUp(@RequestBody User user) {
         return userService.signUp(user);
     }
 
-    @PostMapping("update")
+    @PostMapping("/update")
     public ResponseEntity<ApiResponse> update(@RequestBody User user) {
         return userService.update(user);
     }
@@ -52,6 +52,11 @@ public class UserController {
         return userService.sendNewOtp(email, command);
     }
 
+    @PostMapping("/verify_otp")
+    public ResponseEntity<ApiResponse> verifyOtp(@Param("email") String email, @Param("otp") String otp) {
+        return userService.verifyOtp(email, otp);
+    }
+
     @PostMapping("/login")
     public ResponseEntity<ApiResponse> login(@RequestBody LoginRequest loginRequest) {
         return userService.login(loginRequest);
@@ -65,6 +70,11 @@ public class UserController {
     @PostMapping("/logout")
     public ResponseEntity<ApiResponse> logout() {
         return userService.logout();
+    }
+
+    @GetMapping("/validate")
+    public ResponseEntity<ApiResponse> validate() {
+        return userService.validate();
     }
 
     @PostMapping("/authenticate")

@@ -21,6 +21,7 @@ public class AuthenticationUrlConfig {
     public static final String VALIDATE_USER = "/validate";
     public static final String AUTHENTICATE_URL = "/authenticate";
     public static final String HOSTPITAL_URL = "/hospital";
+    public static final String VERIFY_OTP = "/verify_otp";
 
 
     @Bean
@@ -37,6 +38,7 @@ public class AuthenticationUrlConfig {
                 AUTH_V1_URL+ AUTHENTICATE_URL,
                 AUTH_V1_URL+ SEND_OTP,
                 AUTH_V1_URL+ VALIDATE_USER,
+                AUTH_V1_URL+ VERIFY_OTP,
         };
     }
 

@@ -14,6 +14,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @SuperBuilder
 @Getter
@@ -26,13 +27,13 @@ public abstract class BaseModel {
     @Field(name = "created_at")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     @CreatedDate
-    public Instant createdAt;
+    public Date createdAt;
 
     @Field(name = "updated_at")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-    public Instant updatedAt;
+    public Date updatedAt;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     @Field(name = "deleted_at")
-    public Instant deletedAt;
+    public Date deletedAt;
 }

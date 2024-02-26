@@ -20,6 +20,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -39,16 +40,10 @@ public class UserService {
     private final DeleteOTP deleteOTP;
     private final AuthenticationManager authenticationManager;
 
-    public ResponseEntity<ApiResponse> signUp(SignupRequestWithOtp user) {
+    public ResponseEntity<ApiResponse> signUp(User user) {
         userValidationService.validateNotNull(user, "User");
-        userValidationService.validateNotNull(user.getOtp(), "OTP");
         userValidationService.validateNotNull(user.getEmail(), "Email");
         user.setEmail(user.getEmail().toLowerCase());
-        // verify OTP to signup
-        boolean isOtpVerified = verifyOtpFromDB(user.getEmail(), user.getOtp());
-        if (!isOtpVerified) {
-            throw new ControllerExceptions.OtpInvalidException("Otp did not match");
-        }
         userValidationService.validateNotNull(user.getPassword(), "Password");
         userValidationService.validateNotNull(user.getRole(), "Role");
         userValidationService.validateEmailFormat(user.getEmail());
@@ -56,7 +51,6 @@ public class UserService {
         userValidationService.validateUserNotExistsByEmail(user.getEmail());
         // Encrypt password before saving
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-
         // Create a JWT token
         String token = jwtTokenUtil.generateToken(user);
         userRepository.insert(user);
@@ -210,5 +204,33 @@ public class UserService {
             throw new UsernameNotFoundException("User not found");
         }
         return ResponseEntity.ok().body(ApiResponse.builder().status(Constants.OK).body(response).build());
+    }
+
+    public ResponseEntity<ApiResponse> validate() {
+        if (SecurityContextHolder.getContext().getAuthentication().isAuthenticated()) {
+            ResponseMap response = ResponseMap.builder().build();
+            if (SecurityContextHolder.getContext().getAuthentication().getPrincipal() instanceof UserDetails userDetails) {
+                response.put("message", "User authenticated successfully");
+                User user = userRepository.findByEmail(userDetails.getUsername()).isPresent() ? userRepository.findByEmail(userDetails.getUsername()).get() : null;
+                // Remove password field from user object
+                user.setPassword(null);
+                response.put("user", user);
+                return ResponseEntity.ok().body(ApiResponse.<ResponseMap>builder().status(Constants.OK).body(response).build());
+            }
+        }
+        throw new ControllerExceptions.UnauthorizedException("User not authorized");
+    }
+
+    public ResponseEntity<ApiResponse> verifyOtp(String email, String otp) {
+        userValidationService.validateNotNull(email, "Email");
+        userValidationService.validateNotNull(otp, "OTP");
+        userValidationService.validateEmailFormat(email);
+        email = email.toLowerCase();
+
+        if (verifyOtpFromDB(email, otp)) {
+            return ResponseEntity.ok().body(ApiResponse.<ResponseMap>builder().status(Constants.OK).body(AppUtil.getEmptyMap("OTP verified")).build());
+        } else {
+            throw new ControllerExceptions.OtpInvalidException("OTP invalid or expired");
+        }
     }
 }
