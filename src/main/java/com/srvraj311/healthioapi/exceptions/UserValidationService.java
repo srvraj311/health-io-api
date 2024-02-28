@@ -38,5 +38,11 @@ public class UserValidationService {
             // TODO : Add other password strength checks as needed
         }
 
+        public void validateUserExistsByEmail(String email) {
+            if (!userRepository.findByEmail(email).isPresent()) {
+                throw new ControllerExceptions.BadRequestException("User with email " + email + " does not exist");
+            }
+        }
+
     // TODO : Add more validation methods as per your requirements
 }

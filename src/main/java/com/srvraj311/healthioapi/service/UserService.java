@@ -65,7 +65,7 @@ public class UserService {
         Optional<OTP> otpOptional = oTPValidationRepository.findByEmail(email);
         if (otpOptional.isPresent()) {
             OTP otpDB = otpOptional.get();
-            return otpDB.getEmail().equals(email) &&
+            return otpDB.getEmail().equals(email) && otp.equalsIgnoreCase(otpDB.getOtp()) &&
                     Long.parseLong(otpDB.getExpires_at()) > new Date(System.currentTimeMillis()).getTime();
         }
         return false;
@@ -109,7 +109,7 @@ public class UserService {
         email = email.toLowerCase();
         userValidationService.validateNotNull(email, "Email");
         userValidationService.validateNotNull(command, "Command");
-        userValidationService.validateUserNotExistsByEmail(email);
+//      userValidationService.validateUserNotExistsByEmail(email); Because checking user is not required while sending otp
         userValidationService.validateEmailFormat(email);
         return sendMail(email, command);
     }
@@ -119,6 +119,12 @@ public class UserService {
         OTP otpDto = new OTP(email, String.valueOf(otp), String.valueOf(new Date(System.currentTimeMillis()).getTime() + 1000 * 60 * 10));
         oTPValidationRepository.save(otpDto);
         ResponseMap response = ResponseMap.builder().build();
+
+        if (command.equalsIgnoreCase(Constants.CMD_OTP_SIGNUP)) {
+            userValidationService.validateUserNotExistsByEmail(email);
+        } else if (command.equalsIgnoreCase(Constants.CMD_OTP_FORGOT_PASSWORD)) {
+            userValidationService.validateUserExistsByEmail(email);
+        }
 
         Thread emailThread = new Thread(() -> {
             EmailConfig emailConfig = new EmailConfig();
@@ -165,16 +171,16 @@ public class UserService {
     }
 
     public ResponseEntity<ApiResponse> resetPassword(ResetPasswordRequest request) {
+        request.setEmail(request.getEmail().toLowerCase());
         userValidationService.validateNotNull(request, "Request");
         userValidationService.validateNotNull(request.getEmail(), "Email");
         userValidationService.validateNotNull(request.getPassword(), "Password");
-        userValidationService.validateNotNull(request.getOtp(), "OTP");
         userValidationService.validatePasswordStrength(request.getPassword());
         userValidationService.validateEmailFormat(request.getEmail());
-        userValidationService.validateUserNotExistsByEmail(request.getEmail());
+        userValidationService.validateUserExistsByEmail(request.getEmail());
 
         Optional<User> dbUser = userRepository.findByEmail(request.getEmail());
-        if (dbUser.isPresent() && verifyOtpFromDB(request.getEmail(), request.getOtp())) {
+        if (dbUser.isPresent()) {
             dbUser.get().setPassword(passwordEncoder.encode(request.getPassword()));
             userRepository.save(dbUser.get());
             return ResponseEntity.ok(ApiResponse.builder().status(Constants.OK).body(AppUtil.getEmptyMap("Login Successful")).build());
