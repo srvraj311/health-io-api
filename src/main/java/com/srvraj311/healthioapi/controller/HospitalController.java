@@ -57,7 +57,6 @@ public class HospitalController {
     }
 
     @GetMapping("/cities")
-    @PreAuthorize("hasAuthority('ROLE_DOCTOR') || hasAuthority('ROLE_USER')")
     public ResponseEntity<ApiResponse> getAllCity() {
         return hospitalService.getAllHosiptalCity();
     }
