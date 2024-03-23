@@ -1,4 +1,3 @@
 #!/bin/bash
-echo "Excuting mvn clean package"
+echo "Executing mvn clean package"
 mvn clean install
-mvn clean package
