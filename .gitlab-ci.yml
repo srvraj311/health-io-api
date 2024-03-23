@@ -1,5 +1,8 @@
 image: docker:stable  # Use the official Docker image as the runner
 
+include:
+  - template: AWS/CF-Provision-and-Deploy-EC2.gitlab-ci.yml
+
 stages:
   - build
   - deploy
@@ -14,6 +17,8 @@ variables:
 build:
   image: docker:20.10.16
   stage: build
+  variables:
+    SECURE_FILES_DOWNLOAD_PATH: '.secure_files/health-io-api-key.pem'
   services:
     - docker:20.10.16-dind
   script:
@@ -28,7 +33,7 @@ deploy:
     - docker:20.10.16-dind
   stage: deploy
   script:
-    - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
-    - docker pull $IMAGE_NAME:$IMAGE_TAG
-    - echo "Loading deployment configuration..."
-    - deployment_config=$(cat ci/cd/config.yaml)
+    - curl --silent "https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/download-secure-files/-/raw/main/installer" | bash
+    - ls -lah .secure_files
+    - scp -o StrictHostKeyChecking=no -i $SSH_PRIVATE_KEY_PATH docker-deploy.sh ec2-user@34.224.222.50:/tmp/docker-deploy.sh  # Securely transfer deployment script
+    - ssh -o StrictHostKeyChecking=no -i $SSH_PRIVATE_KEY_PATH ec2-user@34.224.222.50 'bash /tmp/docker-deploy.sh '$IMAGE_NAME' '$IMAGE_TAG''  # Execute deployment script on EC2
