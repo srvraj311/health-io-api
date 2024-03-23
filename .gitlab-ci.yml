@@ -1,0 +1,25 @@
+image: docker:stable  # Use the official Docker image as the runner
+
+stages:
+  - build
+  - deploy
+
+variables:
+  IMAGE_NAME: srvraj311/health-io-api  # Replace with your Docker Hub details
+  IMAGE_TAG: latest#$CI_COMMIT_TAG  # Use the Git tag for the image tag
+
+build:
+  stage: build
+  script:
+    - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD  # Login to Docker Hub (securely store credentials using GitLab CI/CD variables)
+    - docker build -t $IMAGE_NAME:$IMAGE_TAG .
+    - docker push $IMAGE_NAME:$IMAGE_TAG
+
+deploy:
+  stage: deploy
+  script:
+    - scp -o StrictHostKeyChecking=no -i $SSH_PRIVATE_KEY_PATH docker-deploy.sh ec2-user@34.224.222.50:/tmp/docker-deploy.sh  # Securely transfer deployment script
+    - ssh -o StrictHostKeyChecking=no -i $SSH_PRIVATE_KEY_PATH ec2-user@34.224.222.50 'bash /tmp/docker-deploy.sh '$IMAGE_NAME' '$IMAGE_TAG''  # Execute deployment script on EC2
+
+  #only:
+  #  - tags  # Run deployment only on tagged commits
