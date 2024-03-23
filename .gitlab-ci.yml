@@ -31,6 +31,7 @@ deploy:
   stage: deploy
   before_script:
     - apk add --update curl && rm -rf /var/cache/apk/*
+    - apk add --no-cache --upgrade bash
   script:
     - curl --silent "https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/download-secure-files/-/raw/main/installer" | bash
     - ls -lah .secure_files
