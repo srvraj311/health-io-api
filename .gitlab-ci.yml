@@ -15,7 +15,7 @@ build:
     - docker:20.10.16-dind
   script:
     - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD  # Login to Docker Hub (securely store credentials using GitLab CI/CD variables)
-    - docker build -t $IMAGE_NAME .
+    - docker build -v -t $IMAGE_NAME .
     - docker push $IMAGE_NAME:$IMAGE_TAG
 
 deploy:
