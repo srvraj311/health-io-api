@@ -3,7 +3,7 @@ FROM openjdk:21-slim
 WORKDIR /app
 
 # Copy the packaged JAR file into the container
-COPY target/health-io-api-0.0.1-SNAPSHOT.jar /app/health-io-api.jar
+COPY health-io-api-0.0.1-SNAPSHOT.jar /app/health-io-api.jar
 
 # Expose the port that the application will run on
 EXPOSE 8080
