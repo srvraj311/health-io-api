@@ -11,6 +11,6 @@ docker stop health-io-api || true && docker rm health-io-api || true
 docker pull $image_name:$image_tag
 
 # Update with your commands for running the new container
-docker run -d -p 80:8080 $image_name:$image_tag --name health-io-api  # Example, replace with your container name and any additional options
+docker run -d -p 80:8080 --name health-io-api $image_name:$image_tag   # Example, replace with your container name and any additional options
 
 echo "Deployed image: $image_name:$image_tag"
