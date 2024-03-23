@@ -1,0 +1,18 @@
+# EC2 Instance Details
+ec2_instance_id: "i-0412f420c3eddd265"  # Replace with your actual instance ID
+
+# Security Group (Optional)
+# If your deployment requires opening specific ports on a security group, define it here
+# security_group: "sg-0fedcba"  # Replace with your security group ID (optional)
+
+# Docker Image Details
+image:
+  registry: "registry.gitlab.com"  # Replace with your container registry if different
+  name: "srvraj311/health-io-api"
+  tag: "latest"  # Can be changed to use specific tags or build versions
+
+# Port Mappings (Optional)
+# Define port mappings between the container and the EC2 instance
+ports:
+  - "80:8080"  # Maps container port 80 to host port 8080 (example web server)
+  # Add more port mappings as needed
