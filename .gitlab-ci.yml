@@ -35,5 +35,6 @@ deploy:
   script:
     - curl --silent "https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/download-secure-files/-/raw/main/installer" | bash
     - ls -lah .secure_files
+    - chmod 600 $SSH_PRIVATE_KEY_PATH
     - scp -o StrictHostKeyChecking=no -i $SSH_PRIVATE_KEY_PATH docker-deploy.sh ec2-user@34.224.222.50:/tmp/docker-deploy.sh  # Securely transfer deployment script
     - ssh -o StrictHostKeyChecking=no -i $SSH_PRIVATE_KEY_PATH ec2-user@34.224.222.50 'bash /tmp/docker-deploy.sh '$IMAGE_NAME' '$IMAGE_TAG''  # Execute deployment script on EC2
