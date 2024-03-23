@@ -4,6 +4,7 @@ FROM maven:3.9.5-eclipse-temurin-21 AS builder
 WORKDIR /app
 COPY pom.xml ./
 COPY src /app/src
+COPY build-jar.sh ./
 RUN chmod +x build-jar.sh && ./build-jar.sh  # Make script executable and run
 FROM openjdk:21-slim
 CMD ["echo", "Build complete"]
