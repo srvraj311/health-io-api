@@ -1,8 +1,5 @@
 image: docker:stable  # Use the official Docker image as the runner
 
-include:
-  - template: AWS/CF-Provision-and-Deploy-EC2.gitlab-ci.yml
-
 stages:
   - build
   - deploy
