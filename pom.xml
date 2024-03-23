@@ -14,7 +14,7 @@
     <name>health-io-api</name>
     <description>health-io-api</description>
     <properties>
-        <java.version>21</java.version>
+        <java.version>20</java.version>
     </properties>
     <dependencies>
         <dependency>
@@ -98,18 +98,20 @@
                 <executions>
                     <execution>
                         <id>copy-jar-to-root</id>
-                        <phase>install</phase> <goals>
-                        <goal>copy-resources</goal>
-                    </goals>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
                         <configuration>
-                            <outputDirectory>${basedir}/</outputDirectory> <resources>
-                            <resource>
-                                <directory>${project.build.directory}</directory>
-                                <includes>
-                                    <include>*.jar</include>
-                                </includes>
-                            </resource>
-                        </resources>
+                            <outputDirectory>${basedir}/</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${project.build.directory}</directory>
+                                    <includes>
+                                        <include>*.jar</include>
+                                    </includes>
+                                </resource>
+                            </resources>
                         </configuration>
                     </execution>
                 </executions>
