@@ -23,6 +23,9 @@ build:
 # Target EC2 Instance
 
 deploy:
+  image: docker:20.10.16
+  services:
+    - docker:20.10.16-dind
   stage: deploy
   script:
     - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
