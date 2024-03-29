@@ -2,7 +2,7 @@
 
 This ia a springboot api for my personal project health-io, which is a healthcare automation platform.
 
-Health io aims to aumate healthcare using robust technology and methods like digital prescription, automatic medicine recommendation, patient experience, doctors experience and hospital accounts management using AI at its core.
+Health.io leverages artificial intelligence (AI) to automate core healthcare functionalities, aiming to improve efficiency and streamline processes across the healthcare ecosystem. This includes utilizing AI for digital prescription generation, intelligent medication recommendations, and enhanced patient and provider experiences. Additionally, Health.io incorporates AI-powered hospital account management to optimize administrative tasks and financial processes.
 
 ## Documents for Project
 #### [Project Paper](https://docs.google.com/document/d/1vwjnvhNIuz2VNJmeZEhNQIgMaYdUmzjHRisOBvx4wUc/edit?usp=sharing)
