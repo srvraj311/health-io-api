@@ -39,7 +39,7 @@ public class HospitalController {
     }
 
     @GetMapping("/")
-    @PreAuthorize("hasAuthority('ROLE_DOCTOR')")
+    @PreAuthorize("hasAuthority('ROLE_DOCTOR') || hasAuthority('ROLE_USER')")
     public ResponseEntity<ApiResponse> getHospital(@RequestParam("hospital_id") String hospital_id) {
         return hospitalService.getHospital(hospital_id);
     }
