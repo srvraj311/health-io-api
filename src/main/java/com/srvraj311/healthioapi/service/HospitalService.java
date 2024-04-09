@@ -260,14 +260,10 @@ public class HospitalService {
         hospitalValidationService.validateFieldNotEmpty(cityName, "City Name");
         Optional<List<Hospital>> hospitalList = hospitalRepository.findAllByCity(cityName.toLowerCase());
         if (hospitalList.isPresent()) {
-            List<ResponseMap> detailsList = new ArrayList<>();
-            for (Hospital hospital : hospitalList.get()) {
-                detailsList.add(this.getHospitalDetailsById(hospital.getId()));
-            }
-
+            // Updated code to send only hospital primary details in response
             ResponseMap map = ResponseMap.builder().build();
             map.put("city", cityName);
-            map.put("hospitals", detailsList);
+            map.put("hospitals", hospitalList.get());
 
             return ResponseEntity.ok().body(
                     ApiResponse.builder()
