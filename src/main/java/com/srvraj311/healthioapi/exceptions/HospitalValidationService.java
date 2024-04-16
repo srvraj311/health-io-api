@@ -1,6 +1,5 @@
 package com.srvraj311.healthioapi.exceptions;
 
-import com.srvraj311.healthioapi.repository.Hospital.HospitalInfoRepository;
 import com.srvraj311.healthioapi.repository.Hospital.HospitalRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -9,8 +8,6 @@ import org.springframework.stereotype.Service;
 public class HospitalValidationService {
     @Autowired
     private HospitalRepository hospitalRepository; // Assuming HospitalRepository is your repository for hospital data
-    @Autowired
-    private HospitalInfoRepository hospitalInfoRepository;
 
     public void validateNotNull(Object obj, String fieldName) {
         if (obj == null) {

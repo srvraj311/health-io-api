@@ -1,7 +1,6 @@
 package com.srvraj311.healthioapi.repository.Hospital;
 
 import com.srvraj311.healthioapi.models.Hospital.HospitalAvailability;
-import com.srvraj311.healthioapi.models.Hospital.HospitalInfo;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 

@@ -28,7 +28,6 @@ public class HospitalService {
     private final HospitalAmenitiesRepository hospitalAmenitiesRepository;
     private final HospitalAvailabilityRepository hospitalAvailabilityRepository;
     private final HospitalValidationService hospitalValidationService;
-    private final HospitalInfoRepository hospitalInfoRepository;
     private final BloodBankRepository bloodBankRepository;
     private final MongoTemplate mongoTemplate;
 
@@ -45,10 +44,6 @@ public class HospitalService {
 
         Hospital hospital = hospitalRepository.insert(hospitalReq);
         String id = hospital.getId();
-
-        HospitalInfo hospitalInfo = new HospitalInfo();
-        hospitalInfo.setHospital_id(id);
-        hospitalInfoRepository.save(hospitalInfo);
 
         HospitalAvailability availability = new HospitalAvailability();
         availability.setHospital_id(id);
@@ -71,7 +66,6 @@ public class HospitalService {
 
     public ResponseEntity<ApiResponse> updateHospitalData(HashMap<String, String> requestObj, String command) {
         return switch (command) {
-            case Constants.CMD_UPDATE_HOSPITAL_INFO -> updateHospitalInfo(requestObj);
             case Constants.CMD_UPDATE_HOSPITAL_AMENITIES -> updateHospitalAmenities(requestObj);
             case Constants.CMD_UPDATE_HOSPITAL_AVAILABILITY -> updateHospitalAvailability(requestObj);
             case Constants.CMD_UPDATE_HOSPITAL_BLOOD_BANK -> updateHospitalBloodBank(requestObj);
@@ -91,27 +85,6 @@ public class HospitalService {
                     ApiResponse.builder()
                             .status(Constants.OK)
                             .body(AppUtil.getEmptyMap("Hospital Amenities updated successfully"))
-                            .build()
-            );
-        }
-
-        throw new ControllerExceptions.NotFoundException("The hospital ID you provided is not present");
-    }
-
-    private ResponseEntity<ApiResponse> updateHospitalInfo(HashMap<String, String> requestObj) {
-        HospitalInfo hospitalInfo = new ModelMapper().map(requestObj, HospitalInfo.class);
-        hospitalValidationService.validateNotNull(hospitalInfo, "Hospital Info");
-        hospitalValidationService.validateFieldNotEmpty(hospitalInfo.getHospital_id(), "Hospital Id");
-        hospitalValidationService.validateFieldNotEmpty(hospitalInfo.getCity_name(), "City Name");
-        hospitalValidationService.validateFieldNotEmpty(hospitalInfo.getGeolocation(), "Hospital Geolocation");
-        Optional<HospitalInfo> info = hospitalInfoRepository.findOneByHospitalId(hospitalInfo.getHospital_id());
-        if (info.isPresent()) {
-            hospitalInfo.setId(info.get().getId());
-            hospitalInfoRepository.save(hospitalInfo);
-            return ResponseEntity.ok().body(
-                    ApiResponse.builder()
-                            .status(Constants.OK)
-                            .body(AppUtil.getEmptyMap("Hospital Info updated successfully"))
                             .build()
             );
         }
@@ -179,11 +152,6 @@ public class HospitalService {
             availability.get().setDeletedAt(Date.from(Instant.now()));
             hospitalAvailabilityRepository.save(availability.get());
         }
-        Optional<HospitalInfo> hospitalInfo = hospitalInfoRepository.findOneByHospitalId(hospitalId);
-        if (hospitalInfo.isPresent()) {
-            hospitalInfo.get().setDeletedAt(Date.from(Instant.now()));
-            hospitalInfoRepository.save(hospitalInfo.get());
-        }
         Optional<BloodBank> bloodBank = bloodBankRepository.findOneByHospitalId(hospitalId);
         if (bloodBank.isPresent()) {
             bloodBank.get().setDeletedAt(Date.from(Instant.now()));
@@ -222,9 +190,6 @@ public class HospitalService {
 
         Optional<HospitalAvailability> availability = hospitalAvailabilityRepository.findOneByHospitalId(id);
         availability.ifPresent(value -> response.put("availability", value));
-
-        Optional<HospitalInfo> hospitalInfo = hospitalInfoRepository.findOneByHospitalId(id);
-        hospitalInfo.ifPresent(value -> response.put("hospitalInfo", value));
 
         Optional<BloodBank> bloodBank = bloodBankRepository.findOneByHospitalId(id);
         bloodBank.ifPresent(value -> response.put("bloodBank", value));

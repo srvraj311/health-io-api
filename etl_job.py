@@ -48,7 +48,9 @@ for index, row in df.iterrows():
         'geolocation': geolocation if geolocation is not None else str(''),
         'type': row.get('Hospital_Care_Type') if row.get('Hospital_Category') else '',
         'opening_time': None,
-        'closing_time': None
+        'closing_time': None,
+        'address': row.Location if row.Location != 'nan' else '',
+        'state': row.State if row.State != 'nan' else '',
     }
     hospitalInfo = {
         'hospital_id': 'HIO' + str(row.State_ID) + str(row.District_ID) + str(row.Sr_No),
@@ -94,7 +96,7 @@ for index, row in df.iterrows():
 base_url = "http://localhost:8080/api/v1/hospital"
 headers = {
     "Content-Type": "application/json",
-    "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzb3VyYWJocmFqMzExQGdtYWlsLmNvbSIsImlhdCI6MTcxMjQ2NzY2MCwiZXhwIjoxNzEyNTAzNjYwfQ.3Uax_f3UtDaaExKrK4Lcy4iveZJYOAyXMOcXiaFW5O8"
+    "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzb3VyYWJocmFqMzExQGdtYWlsLmNvbSIsImlhdCI6MTcxMzI4Mjc2NywiZXhwIjoxNzEzMzE4NzY3fQ.IDh85MD3mRmFFOqi67pjLpo-yVnJx2Xvq3XNWxuHN4w"
 }
 
 total_calls = len(hospitals_final)
@@ -121,19 +123,19 @@ for index in range(0, len(hospitals_final)):
             # print(f"Error: API request failed with status code {response.status_code}")
 
         # Update hospital info
-        payload = hospitals_final[index]["hospitalInfo"]
-        response = requests.post(base_url + '/update?command=hospital_info', json=payload, headers=headers)
-        if response.status_code == 200:
-            data = response.json()
-            # print("Hospital info updated for id: " + str(index))
-        else:
-            data = response.text
-            # print(f"Error: API request failed with status code {response.status_code}")
+        # payload = hospitals_final[index]["hospitalInfo"]
+        # response = requests.post(base_url + '/update?command=hospital_info', json=payload, headers=headers)
+        # if response.status_code == 200:
+        #     data = response.json()
+        #     # print("Hospital info updated for id: " + str(index))
+        # else:
+        #     data = response.text
+        #     # print(f"Error: API request failed with status code {response.status_code}")
     except Exception as e:
         print("Error: " + str(e))
         failed.append(index)
 
 print("Failed: " + str(failed))
 failed = {'failed': failed}
-failed = df.DataFrame(failed)
+failed = pd.DataFrame(failed)
 failed.to_json('failed.json', index=False)

@@ -24,9 +24,12 @@ public class Hospital extends BaseModel {
     private String id;
     private String name;
     private String city;
+    private String state;
     private String geolocation;
     private String type;
     private String last_updated;
     private String opening_time;
     private String closing_time;
+    private String address;
+    private int rating;
 }
