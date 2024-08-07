@@ -3,6 +3,7 @@ package com.srvraj311.healthioapi.controller;
 import com.srvraj311.healthioapi.dto.ApiResponse;
 import com.srvraj311.healthioapi.models.Hospital.Hospital;
 import com.srvraj311.healthioapi.service.HospitalService;
+import jakarta.websocket.server.PathParam;
 import lombok.AllArgsConstructor;
 import org.apache.coyote.Response;
 import org.springframework.data.repository.query.Param;
@@ -38,10 +39,10 @@ public class HospitalController {
         return hospitalService.deleteHospital(hospital_id);
     }
 
-    @GetMapping("/")
+    @PostMapping("/")
     @PreAuthorize("hasAuthority('ROLE_DOCTOR') || hasAuthority('ROLE_USER')")
-    public ResponseEntity<ApiResponse> getHospital(@RequestParam("hospital_id") String hospital_id) {
-        return hospitalService.getHospital(hospital_id);
+    public ResponseEntity<ApiResponse> getHospital(@RequestBody HashMap<String, String> requestObj ) {
+        return hospitalService.getHospital(requestObj.get("hospital_id") == null ? "" : requestObj.get("hospital_id"));
     }
 
     @GetMapping("/all")
