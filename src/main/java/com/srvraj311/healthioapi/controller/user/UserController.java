@@ -20,6 +20,7 @@ import java.util.HashMap;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/v1/auth")
+@CrossOrigin("*")
 public class UserController {
 
     private UserService userService;

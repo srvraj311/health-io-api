@@ -105,21 +105,24 @@ last_printed_line = ""
 
 failed = []
 
+allarr = []
+
 # Add all hospitals
 for index in range(0, len(hospitals_final)):
     try:
         completed_calls += 1
         print_progress(completed_calls, total_calls)
         payload = hospitals_final[index]["hospital"]
+        allarr.append(payload)
         # payload = json.dumps(payload, default=str, allow_nan=True)
         # print(payload)
         # Add hospital
-        response = requests.post(base_url + '/add', json=payload, headers=headers)
-        if response.status_code == 200:
-            data = response.json()
-            # print("Hospital updated for id: " + str(index))
-        else:
-            data = response.text
+        # response = requests.post(base_url + '/add', json=payload, headers=headers)
+        # if response.status_code == 200:
+        #     data = response.json()
+        #     print("Hospital updated for id: " + str(index))
+        # else:
+        #     data = response.text
             # print(f"Error: API request failed with status code {response.status_code}")
 
         # Update hospital info
@@ -134,7 +137,9 @@ for index in range(0, len(hospitals_final)):
     except Exception as e:
         print("Error: " + str(e))
         failed.append(index)
-
+allarr = {'hospitals': allarr}
+allarr = pd.DataFrame(allarr, columns=['hospitals'], dtype=object, index=None)
+allarr.to_json('hospitals.json', index=False)
 print("Failed: " + str(failed))
 failed = {'failed': failed}
 failed = pd.DataFrame(failed)

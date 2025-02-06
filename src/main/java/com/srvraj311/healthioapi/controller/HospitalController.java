@@ -17,6 +17,7 @@ import java.util.HashMap;
 @RequestMapping("/api/v1/hospital")
 @AllArgsConstructor
 @ControllerAdvice
+@CrossOrigin("*")
 public class HospitalController {
 
     private final HospitalService hospitalService;
@@ -39,8 +40,8 @@ public class HospitalController {
         return hospitalService.deleteHospital(hospital_id);
     }
 
-    @PostMapping("/")
-    @PreAuthorize("hasAuthority('ROLE_DOCTOR') || hasAuthority('ROLE_USER')")
+    @PostMapping()
+    @PreAuthorize("hasAuthority('ROLE_DOCTOR') || hasAuthority('ROLE_USER') || hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<ApiResponse> getHospital(@RequestBody HashMap<String, String> requestObj ) {
         return hospitalService.getHospital(requestObj.get("hospital_id") == null ? "" : requestObj.get("hospital_id"));
     }

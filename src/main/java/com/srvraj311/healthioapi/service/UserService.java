@@ -49,6 +49,11 @@ public class UserService {
         userValidationService.validateEmailFormat(user.getEmail());
         userValidationService.validatePasswordStrength(user.getPassword());
         userValidationService.validateUserNotExistsByEmail(user.getEmail());
+        // If admin user is created, User need to have a hospital id associated as well. In return a message that for admin user hospital id is required
+        if (user.getRole().equalsIgnoreCase("ROLE_ADMIN")) {
+            userValidationService.validateNotNull(user.getHospital_id(), "Hospital id");
+        }
+
         // Encrypt password before saving
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         // Create a JWT token

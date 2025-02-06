@@ -43,4 +43,5 @@ public class User extends BaseModel {
     private String country;
     private String pincode;
     private String blood_group;
+    private String hospital_id;
 }
