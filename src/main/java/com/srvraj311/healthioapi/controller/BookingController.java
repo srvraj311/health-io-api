@@ -5,7 +5,9 @@ import com.srvraj311.healthioapi.dto.ResponseMap;
 import com.srvraj311.healthioapi.models.Booking;
 import com.srvraj311.healthioapi.models.Hospital.Hospital;
 import com.srvraj311.healthioapi.service.BookingService;
+import jakarta.websocket.server.PathParam;
 import lombok.AllArgsConstructor;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -31,14 +33,13 @@ public class BookingController {
     }
 
     @GetMapping()
-    public ResponseEntity<ApiResponse> getBooking() {
+    @PreAuthorize("hasAuthority('ROLE_DOCTOR') || hasAuthority('ROLE_USER') || hasAuthority('ROLE_ADMIN')")
+    public ResponseEntity<ApiResponse> getBookings(
+            @RequestParam(value = "hospital_id") String hospitalId,
+            @RequestParam(value = "type", required = false) String type,
+            @RequestParam(value = "status", required = false) String status) {
+
         ResponseMap responseMap = new ResponseMap();
-        responseMap.put("hospitalInfo", new Hospital());
-        ApiResponse apiResponse = ApiResponse
-                .builder()
-                .status(OK)
-                .body(responseMap)
-                .build();
-        return ResponseEntity.ok(apiResponse);
+        return bookingService.getBookings(hospitalId, type, status);
     }
 }

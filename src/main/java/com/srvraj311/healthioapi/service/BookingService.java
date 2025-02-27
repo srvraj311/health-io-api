@@ -11,6 +11,7 @@ import com.srvraj311.healthioapi.models.Hospital.BloodBank;
 import com.srvraj311.healthioapi.models.Hospital.Hospital;
 import com.srvraj311.healthioapi.models.Hospital.HospitalAmenities;
 import com.srvraj311.healthioapi.models.Hospital.HospitalAvailability;
+import com.srvraj311.healthioapi.repository.BookingCustomRepositoryImpl;
 import com.srvraj311.healthioapi.repository.BookingRepository;
 import com.srvraj311.healthioapi.repository.Hospital.HospitalRepository;
 import com.srvraj311.healthioapi.utils.AppUtil;
@@ -20,6 +21,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.awt.print.Book;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -27,6 +30,7 @@ import java.util.Optional;
 public class BookingService {
 
     private BookingRepository bookingRepository;
+    private BookingCustomRepositoryImpl bookingCustomRepository;
     private HospitalValidationService hospitalValidationService;
     private BookingsValidationService bookingsValidationService;
     private HospitalRepository hospitalRepository;
@@ -69,4 +73,25 @@ public class BookingService {
                         .build()
         );
     }
+
+    public ResponseEntity<ApiResponse> getBookings(String hospitalId, String type, String status) {
+        bookingsValidationService.validateNotNull(hospitalId, "Hospital ID");
+
+        List<Booking> bookings = bookingCustomRepository.findBookingsByFilters(hospitalId, type, status);
+
+        if (!bookings.isEmpty()) {
+            ResponseMap response = ResponseMap.builder().build();
+            response.put("message", "Bookings found");
+            response.put("bookings", bookings);
+            return ResponseEntity.ok().body(
+                    ApiResponse.builder()
+                            .status(Constants.OK)
+                            .body(response)
+                            .build()
+            );
+        } else {
+            throw new ControllerExceptions.NotFoundException("No bookings found with the given filters.");
+        }
+    }
+
 }
